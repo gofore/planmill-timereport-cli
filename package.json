@@ -1,0 +1,24 @@
+{
+  "name": "planmill-fetch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon index.js",
+    "lint": "eslint --ext .js ."
+  },
+  "dependencies": {
+    "cli-loader": "^1.1.1",
+    "eslint": "^3.13.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-standard": "^2.0.1",
+    "inquirer": "^2.0.0",
+    "moment": "^2.17.1",
+    "prompt": "^1.0.0",
+    "request": "^2.79.0",
+    "request-promise-native": "^1.0.3"
+  },
+  "devDependencies": {
+    "eslint-plugin-promise": "^3.4.0"
+  }
+}
