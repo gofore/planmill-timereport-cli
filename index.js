@@ -3,104 +3,24 @@ const moment = require('moment')
 const inquirer = require('inquirer')
 const loader = require('cli-loader')()
 const inquirerAutocompletePrompt = require('inquirer-autocomplete-prompt')
-const Fuse = require('fuse.js')
 const prettyjson = require('prettyjson')
+const getTimeCalcQuestions = require('./time-calc-questions')
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt)
 
+// Start the spinner
 loader.start()
 
-pm.get.projects()
-  .then(projects => Promise.resolve(projects))
-  .then(projects => pm.get.requestingUser().then(requestingUser => Promise.resolve({requestingUser, projects})))
-  .then(({requestingUser, projects}) => Promise.all(projects.map(project => pm.get.tasks(project.id)))
-    .then(tasks => Promise.resolve({ projects, requestingUser, tasks })))
-  .then(({projects, requestingUser, tasks}) => {
-    const projectTasks = projects.map((project, projIndex) => ({
-      project,
-      tasks: tasks[projIndex].filter(task => {
-        const taskNotFinished = moment(task.finish, 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
-          .isSameOrAfter(moment())
-        return taskNotFinished
-      })
+Promise.all([pm.get.projectsWithTasks(), pm.get.requestingUser()])
+  .then(([projectTasks, requestingUser]) => {
+    // Stop the spinner
+    loader.stop()
 
-    }))
-
+    // Set some default values
     const defaultFinishTime = moment().format('DD.MM.YYYY HH:mm')
     const defaultLunchbreak = 0.5
 
-    const questions = [{
-      type: 'input',
-      name: 'start',
-      message: 'What time did you start?',
-      validate: value => {
-        const isValid = moment(value, 'HH:mm').isValid()
-        return (!isValid && 'Please enter a valid time') || true
-      },
-      filter: value => moment(value, 'HH:mm').format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
-    }, {
-      type: 'input',
-      name: 'finish',
-      message: `What time did you finish (${defaultFinishTime})?`,
-      validate: value => {
-        if (!value) {
-          return true
-        }
-        const isValid = moment(value, 'HH:mm').isValid()
-        return (value && !isValid && 'Please enter a valid time') || true
-      },
-      filter: value => {
-        const m = !value ? moment() : moment(value, 'HH:mm')
-        return m.format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
-      }
-    }, {
-      type: 'input',
-      name: 'lunchbreak',
-      message: `How long lunch break did you have (${defaultLunchbreak})?`,
-      validate: value => {
-        // TODO: validation doesnt work correctly
-        if (String(value).match(/\d+(\.\d{1,2})?/) && !isNaN(value)) {
-          return true
-        }
-        return (value && !isValid && 'Please enter a valid time') || true
-      },
-      filter: value => !value ? defaultLunchbreak : Number(value)
-    }, {
-      type: 'autocomplete',
-      name: 'project',
-      message: 'What project?',
-      source: (answersSoFar, input) => {
-        const projectNames = projectTasks.map(projTask => projTask.project.name)
-        if (!input) {
-          return Promise.resolve(projectNames)
-        }
-        const searchResults = (new Fuse(projectNames, { findAllMatches: false })).search(input)
-        const filteredProjectNames = searchResults.map(index => projectNames[index])
-        return Promise.resolve(filteredProjectNames)
-      }
-    }, {
-      type: 'autocomplete',
-      name: 'task',
-      message: 'What task?',
-      source: (answersSoFar, input) => {
-        const taskNames = projectTasks
-          .filter(projTask => projTask.project.name === answersSoFar.project)[0]
-          .tasks.map(task => task.name)
-
-        if (!input) {
-          return Promise.resolve(taskNames)
-        }
-        const searchResults = (new Fuse(taskNames, { findAllMatches: false })).search(input)
-        const filteredTaskNames = searchResults.map(index => taskNames[index])
-
-        return Promise.resolve(filteredTaskNames)
-      }
-    }, {
-      type: 'input',
-      name: 'comment',
-      message: 'Leave a description?'
-    }]
-    loader.stop()
+    const questions = getTimeCalcQuestions(projectTasks, defaultFinishTime, defaultLunchbreak)
 
     return inquirer.prompt(questions)
       .then(answers => {
@@ -124,8 +44,7 @@ pm.get.projects()
     const timeReportObj = Object.assign({}, answers, {
       project: answers.project.project.id,
       task: answers.task.id,
-      person: requestingUser.id,
-      comment: answers.comment
+      person: requestingUser.id
     })
 
     delete timeReportObj.lunchbreak
