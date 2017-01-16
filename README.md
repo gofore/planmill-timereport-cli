@@ -2,13 +2,10 @@
 
 Installation:
 1. Clone the repo
-2. Run:
-```
-  $ yarn install
-```
-3. Create API keys for your planmill by visiting ```https://online.planmill.com/{instance}/api/registrations.jsp```. Give it a _Client ID_ and use ```http://localhost``` as _alowed redirect URIs_
+2. Run: ``$ yarn install``
+3. Create API keys for your planmill by visiting ``https://online.planmill.com/{instance}/api/registrations.jsp``. Give it a _Client ID_ and use ``http://localhost`` as _alowed redirect URIs_
 
-4. Create config file ```config.json``` and fill in the missing information:
+4. Create config file ``config.json`` and fill in the missing information:
 ```
 {
   "apiEndpoint": "https://online.planmill.com/{instance}/api/1.5",
@@ -17,4 +14,4 @@ Installation:
     "pass": "{Client Secret}"
 }
 ```
-5. Run ```yarn start``` and enjoy!
+5. Run ``yarn start`` and enjoy!
