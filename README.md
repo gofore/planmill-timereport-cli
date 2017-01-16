@@ -12,7 +12,7 @@ Install [node.js](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/)
     
     ```json
     {
-      "apiEndpoint": "https://online.planmill.com/{instance}/api/1.5",
+        "apiEndpoint": "https://online.planmill.com/{instance}/api/1.5",
         "tokenUrl": "https://online.planmill.com/{instance}/api/oauth2/token",
         "user": "{Client ID}",
         "pass": "{Client Secret}"
