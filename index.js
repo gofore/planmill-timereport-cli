@@ -5,6 +5,7 @@ const loader = require('cli-loader')()
 const inquirerAutocompletePrompt = require('inquirer-autocomplete-prompt')
 const prettyjson = require('prettyjson')
 const getTimeCalcQuestions = require('./time-calc-questions')
+const utils = require('./lib/utils')
 
 inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt)
 
@@ -27,14 +28,17 @@ Promise.all([pm.get.projectsWithTasks(), pm.get.requestingUser()])
         const timeDiffInMinutes = moment.duration(moment(answers.finish, 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
           .diff(moment(answers.start, 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ'))).asMinutes()
         const timeDiffInDecimalHours = timeDiffInMinutes / 60 - answers.lunchbreak
+        const amount = utils.roundToClosestQuarter(timeDiffInDecimalHours) * 60
+        const project = projectTasks.filter(projTask => projTask.project.name === answers.project)[0]
 
-        const amount = Number((Math.round(timeDiffInDecimalHours * 4) / 4).toFixed(2)) * 60
-        answers.project = projectTasks.filter(projTask => projTask.project.name === answers.project)[0]
-        answers.task = answers.project.tasks.filter(task => task.name === answers.task)[0]
         return Promise.resolve({
-          answers: Object.assign({amount}, answers, {
-            finish: moment(answers.finish, 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ').subtract(answers.lunchbreak, 'hours')
-            .format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
+          answers: Object.assign({}, answers, {
+            amount,
+            finish: moment(answers.finish, 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
+              .subtract(answers.lunchbreak, 'hours')
+              .format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ'),
+            project,
+            task: project.tasks.filter(task => task.name === answers.task)[0]
           }),
           requestingUser
         })
@@ -52,7 +56,7 @@ Promise.all([pm.get.projectsWithTasks(), pm.get.requestingUser()])
   })
   .then(data => pm.get.timereportsById(data.id))
   .then(data => {
-    const hours = (data.amount / 60).toFixed(2)
+    const hours = utils.roundToClosestQuarter(data.amount / 60)
     console.log('Successfully inserted following data:')
 
     console.log(prettyjson.render({
