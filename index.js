@@ -11,19 +11,19 @@ const options = require('./lib/options')
 const bootstrap = () => {
   try {
     const opts = options.parse()
-    if(opts.help) {
+    if (opts.help) {
       console.log(options.usage())
       return null
     }
     return require('./lib/planmill').instance(opts)
-  } catch(e) {
+  } catch (e) {
     console.log('ERROR:', e.message)
     console.log(options.usage())
     return null
   }
 }
 
-const main = (pm) => {
+const main = pm => {
   inquirer.registerPrompt('autocomplete', inquirerAutocompletePrompt)
 
   // Start the spinner
@@ -88,6 +88,6 @@ const main = (pm) => {
 
 // Attempt to bootstrap application, run main if successful
 const pm = bootstrap()
-if(pm !== null) {
+if (pm !== null) {
   main(pm)
 }
