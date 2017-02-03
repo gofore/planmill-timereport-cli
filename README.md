@@ -18,4 +18,5 @@ Install [node.js](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/)
         "pass": "{Client Secret}"
     }
     ```
+    You can place the config.json wherever you like and point to it using `--config` flag. Default search locations include _current directory_ and _`~/.config/planmill/`_
 5.  Run `yarn start` and enjoy!
