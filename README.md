@@ -20,3 +20,5 @@ Install [node.js](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/)
     ```
     You can place the config.json wherever you like and point to it using `--config` flag. Default search locations include _current directory_ and _`~/.config/planmill/`_
 5.  Run `npm start` and enjoy!
+
+6.  Make a symlink to npm start command to your `/usr/local/bin` or similar to make this CLI available everywhere
