@@ -51,9 +51,6 @@ const main = pm => {
           return Promise.resolve({
             answers: Object.assign({}, answers, {
               amount,
-              finish: moment(answers.finish, 'YYYY-MM-DD[T]HH:mm:ss.SSSZZ')
-                .subtract(answers.lunchbreak, 'hours')
-                .format('YYYY-MM-DD[T]HH:mm:ss.SSSZZ'),
               project,
               task: project.tasks.filter(task => task.name === answers.task)[0]
             }),
